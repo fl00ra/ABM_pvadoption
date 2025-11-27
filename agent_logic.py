@@ -1,6 +1,6 @@
 import numpy as np
 
-ELEC_PRICE = 0.20          # €/kWh retail price (constant)
+ELEC_PRICE = ...         # €/kWh retail price (constant)
 EXPORT_PRICE_RATIO = 0.3   # fraction of retail price for low feed-in
 
 
@@ -53,7 +53,6 @@ def compute_V(agent_array, timestep: int, policy, T: int = 25,
     for t in range(T):
         future_t = timestep + t
 
-        # Expected share of exports that can be net-metered in year `future_t`
         nm_share = policy.get_net_metering_share_expectation(
             decision_t=timestep,
             future_t=future_t,
@@ -83,13 +82,11 @@ def compute_V(agent_array, timestep: int, policy, T: int = 25,
             annual_benefit = savings_bill + E_feed * feed_price_low
 
         else:
-            # Flat retail price + net-metering + low-price feed-in
             elec_price = np.full_like(E_cons, ELEC_PRICE, dtype=float)
             feed_price_low = elec_price * EXPORT_PRICE_RATIO
 
             annual_benefit = (E_use + E_salder) * elec_price + E_feed * feed_price_low
 
-        # Discount cash flows to `timestep` (benefits at end of each year)
         npv += annual_benefit / ((1.0 + r) ** (t + 1))
 
     # Up-front investment cost after policy support
